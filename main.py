@@ -22,8 +22,8 @@ def parse_args():
     parser.add_argument(
         "--judge-model",
         type=str,
-        default="openai/gpt-5-mini",
-        help="Model name for judge agent (default: openai/gpt-5-mini)"
+        default="gemini/gemini-2.5-flash",
+        help="Model name for judge agent (default: gemini/gemini-2.5-flash)"
     )
     parser.add_argument(
         "--dataset-type",
@@ -38,6 +38,13 @@ def parse_args():
         default="longmemeval",
         choices=["longmemeval", "investigathon_evaluation", "investigathon_held_out"],
         help="Dataset set to use (default: longmemeval)"
+    )
+    parser.add_argument(
+        "--agent-type",
+        type=str,
+        default="rag",
+        choices=["rag", "minirag"],
+        help="Type of agent to use: rag, minirag (default: rag)"
     )
     parser.add_argument(
         "-n", "--num-samples",
@@ -56,22 +63,29 @@ config = Config(
     longmemeval_dataset_type=args.dataset_type,
     longmemeval_dataset_set=args.dataset_set,
     N=args.num_samples,
+    agent_type=args.agent_type,
 )
 
 print(f"\nInitializing models...")
 print(f"  Memory Model: {config.memory_model_name}")
 print(f"  Judge Model: {config.judge_model_name}")
 print(f"  Embedding Model: {config.embedding_model_name}")
+print(f"  Agent Type: {config.agent_type}")
 
 memory_model = LiteLLMModel(config.memory_model_name)
 judge_model = LiteLLMModel(config.judge_model_name)
 judge_agent = JudgeAgent(model=judge_model)
-memory_agent = RAGAgent(model=memory_model, embedding_model_name=config.embedding_model_name)
+
+if config.agent_type == "minirag":
+    from src.agents.MiniRAGAgent import MiniRAGAgent
+    memory_agent = MiniRAGAgent(model_name=config.memory_model_name, embedding_model_name=config.embedding_model_name)
+else:
+    memory_agent = RAGAgent(model=memory_model, embedding_model_name=config.embedding_model_name)
 
 longmemeval_dataset = LongMemEvalDataset(config.longmemeval_dataset_type, config.longmemeval_dataset_set)
 
 # Create results directory
-results_dir = f"data/results/{config.longmemeval_dataset_set}/{config.longmemeval_dataset_type}/embeddings_{config.embedding_model_name.replace('/', '_')}_memory_{config.memory_model_name.replace('/', '_')}_judge_{config.judge_model_name.replace('/', '_')}"
+results_dir = f"data/results/{config.longmemeval_dataset_set}/{config.longmemeval_dataset_type}/agent_{config.agent_type}_embeddings_{config.embedding_model_name.replace('/', '_')}_memory_{config.memory_model_name.replace('/', '_')}_judge_{config.judge_model_name.replace('/', '_')}"
 os.makedirs(results_dir, exist_ok=True)
 
 print(f"\nResults will be saved to: {results_dir}")

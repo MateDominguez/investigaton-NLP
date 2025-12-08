@@ -1,7 +1,7 @@
 [project]
 name = "longmemeval-investigathon"
 version = "0.1.0"
-requires-python = ">=3.13"
+requires-python = ">=3.10, <3.14"
 dependencies = [
     "python-dotenv",
     "litellm",
@@ -11,5 +11,35 @@ dependencies = [
     "pydantic",
     "gdown",
     "ipykernel",
-    "black"
+    "black",
+    "accelerate>=1.12.0",
+    "aiofiles>=25.1.0",
+    "aiohttp>=3.13.1",
+    "graspologic>=3.4.4",
+    "json-repair>=0.54.2",
+    "httpx>=0.28.1",
+    "networkx>=3.4.2",
+    "nltk>=3.9.2",
+    "numpy>=1.26.4",
+    "pypdf2>=3.0.1",
+    "python-docx>=1.2.0",
+    "python-pptx>=1.0.2",
+    "rouge>=1.0.1",
+    "tenacity>=9.1.2",
+    "tiktoken>=0.12.0",
+    "tqdm>=4.67.1",
+    "xxhash>=3.6.0",
+    "sentence-transformers>=5.1.2",
+    "minirag-hku",
+    "pipmaster>=1.0.10",
+    "transformers>=4.57.3",
+    "nano-vectordb>=0.0.4.3",
 ]
+
+[tool.uv.workspace]
+members = [
+    "src/MiniRAG",
+]
+
+[tool.uv.sources]
+minirag-hku = { workspace = true }

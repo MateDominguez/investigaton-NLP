@@ -3,12 +3,22 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from src.datasets.LongMemEvalDataset import LongMemEvalInstance
+from sentence_transformers import SentenceTransformer
 from litellm import embedding
 
+_model_cache = {}
 
 def embed_text(message, embedding_model_name):
-    response = embedding(model=embedding_model_name, input=message)
-    return response.data[0]["embedding"]
+    if "ollama" in embedding_model_name:
+        response = embedding(model=embedding_model_name, input=message)
+        return response.data[0]["embedding"]
+    else:
+        # Fallback to SentenceTransformer for local models like all-MiniLM-L6-v2
+        if embedding_model_name not in _model_cache:
+             _model_cache[embedding_model_name] = SentenceTransformer(embedding_model_name)
+        
+        model = _model_cache[embedding_model_name]
+        return model.encode(message).tolist()
 
 
 def get_messages_and_embeddings(instance: LongMemEvalInstance, embedding_model_name):

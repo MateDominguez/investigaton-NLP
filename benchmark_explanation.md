@@ -19,7 +19,7 @@ En esta competencia vamos a usar la version S de LongMemEval que tiene una secue
 
 ### Formulación
 
-Cada instancia del benchmark es una **4-upla**:
+Cada instancia del benchmark es una **3-upla**:
 
 \[
 $(S, q, a)$
